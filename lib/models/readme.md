@@ -6,3 +6,4 @@ Este directorio contiene los modelos de datos utilizados en la aplicación Jacha
 
 - `class_card_model.dart`: Modelo de datos para las tarjetas de clases que incluye título, subtítulo, instructor y configuración visual (colores e iconos).
 - `class_detail_model.dart`: Modelos para la vista de detalle de clase, incluyendo TaskModel para las tareas y ClassDetailModel para los datos completos de la clase.
+- `reception_model.dart`: Modelos para los métodos de recepción de clases (WiFi Directo, NFC, WiFi, Bluetooth) con iconos e instrucciones específicas.

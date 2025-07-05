@@ -6,6 +6,7 @@ import '../services/database_service.dart';
 import '../widgets/task_card.dart';
 import 'tema_detalle_view.dart';
 import 'send_page.dart';
+import 'document_editor_page.dart';
 
 class ClassDetailPage extends StatefulWidget {
   final ClassCardModel classData;
@@ -468,32 +469,54 @@ class _ClassDetailPageState extends State<ClassDetailPage>
     }
 
     if (tasks.isEmpty) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.assignment_outlined,
-              size: 80,
-              color: Colors.grey,
+      return ListView(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        children: [
+          _buildDocumentEditorWidget(),
+          const SizedBox(height: 40),
+          const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.assignment_outlined,
+                  size: 80,
+                  color: Colors.grey,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'No hay temas disponibles para esta clase',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 18,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Crea tu primer documento para comenzar',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
             ),
-            SizedBox(height: 16),
-            Text(
-              'No hay temas disponibles para esta clase',
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 18,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       );
     }
 
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 16),
-      itemCount: tasks.length,
+      itemCount: tasks.length + 1, // +1 para el widget del editor
       itemBuilder: (context, index) {
+        // Widget del editor de documentos como primer elemento
+        if (index == 0) {
+          return _buildDocumentEditorWidget();
+        }
+        
+        // Ajustar el índice para las tareas
+        final taskIndex = index - 1;
         return Column(
           children: [
             GestureDetector(
@@ -501,14 +524,14 @@ class _ClassDetailPageState extends State<ClassDetailPage>
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => TemaDetalleView(task: tasks[index]),
+                    builder: (context) => TemaDetalleView(task: tasks[taskIndex]),
                   ),
                 );
               },
               child: TaskCard(
-                task: tasks[index],
-                onSend: () => _sendTask(index),
-                onDelete: () => _removeTask(index),
+                task: tasks[taskIndex],
+                onSend: () => _sendTask(taskIndex),
+                onDelete: () => _removeTask(taskIndex),
               ),
             ),
             // Agregar comentario de clase después de cada tarea
@@ -566,6 +589,98 @@ class _ClassDetailPageState extends State<ClassDetailPage>
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDocumentEditorWidget() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: InkWell(
+        onTap: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DocumentEditorPage(
+                classId: widget.classData.id ?? 1,
+                className: widget.classData.title,
+              ),
+            ),
+          );
+          
+          // Si se guardó un documento, recargar las tareas
+          if (result == true) {
+            _loadTasksForClass();
+          }
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF4285F4),
+                Color(0xFF1A73E8),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF4285F4).withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.edit_document,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 16),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Crear Nuevo Documento',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Agrega contenido y preguntas para tus estudiantes',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.white,
+                size: 16,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

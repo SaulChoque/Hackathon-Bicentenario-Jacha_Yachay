@@ -206,4 +206,15 @@ class DocumentComplete {
     required this.questions,
     required this.questionOptions,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'document': document.toMap(),
+      'articleBlocks': articleBlocks.map((block) => block.toMap()).toList(),
+      'questions': questions.map((question) => question.toMap()).toList(),
+      'questionOptions': questionOptions.map((questionId, options) => 
+        MapEntry(questionId.toString(), options.map((option) => option.toMap()).toList())
+      ),
+    };
+  }
 }

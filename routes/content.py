@@ -38,7 +38,7 @@ def subir_contenido():
         os.makedirs(upload_dir, exist_ok=True)
         
         # Validar extensión del archivo (opcional)
-        allowed_extensions = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+        allowed_extensions = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif','jacha'}
         if '.' in archivo.filename:
             extension = archivo.filename.rsplit('.', 1)[1].lower()
             if extension not in allowed_extensions:

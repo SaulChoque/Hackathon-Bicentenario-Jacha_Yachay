@@ -7,6 +7,7 @@ from routes.tests import tests_bp
 from routes.document import document_bp
 from routes.article_block import article_block_bp
 from routes.preguntas import preguntas_bp
+from routes.sincronizacion import sincronizacion_bp
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
 CORS(app)
@@ -18,7 +19,7 @@ app.register_blueprint(tests_bp, url_prefix='/api/tests')
 app.register_blueprint(document_bp, url_prefix='/api/documentos')
 app.register_blueprint(article_block_bp, url_prefix='/api/bloques')
 app.register_blueprint(preguntas_bp, url_prefix='/api/preguntas')
-# Inicializar base de datos
+app.register_blueprint(sincronizacion_bp, url_prefix='/api/sincronizacion')
 db.init_app(app)
 
 # Manejador global de errores 404

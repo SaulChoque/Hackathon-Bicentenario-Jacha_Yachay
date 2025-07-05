@@ -236,12 +236,15 @@ class _TemaDetalleViewState extends State<TemaDetalleView> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF1F1F1F),
-        title: Row(
-          children: [
-            Icon(Icons.description, color: Color(0xFF4285F4)),
-            const SizedBox(width: 8),
-            Text(documentComplete?.document.title ?? widget.task.title),
-          ],
+        title: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              Icon(Icons.description, color: Color(0xFF4285F4)),
+              const SizedBox(width: 8),
+              Text(documentComplete?.document.title ?? widget.task.title),
+            ],
+          ),
         ),
       ),
       backgroundColor: const Color(0xFF1F1F1F),

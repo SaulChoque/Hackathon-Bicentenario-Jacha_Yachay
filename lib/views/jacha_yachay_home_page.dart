@@ -161,7 +161,7 @@ class _JachaYachayHomePageState extends State<JachaYachayHomePage> {
           Row(
             children: [
               Text(
-                _users[1],
+                _selectedUser,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,

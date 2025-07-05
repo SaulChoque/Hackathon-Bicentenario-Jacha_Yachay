@@ -101,7 +101,7 @@ class DatabaseService {
     await db.insert('classes', {
       'title': 'AUXILIATURA EST',
       'subtitle': '',
-      'instructor': 'Adriana Cardenas Soria',
+      'instructor': 'Cristian Abel',
       'gradient_start_color': '0xFFFF6B35',
       'gradient_end_color': '0xFFE55100',
       'icon_name': 'analytics',

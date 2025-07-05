@@ -210,4 +210,15 @@ class ClassService {
       print('Error al inicializar datos por defecto: $e');
     }
   }
+
+  /// Refresca las clases (útil después de recibir documentos)
+  static Future<void> refreshClasses() async {
+    try {
+      print('🔄 Refrescando clases después de recibir documento...');
+      // Lógica adicional de refresh si es necesaria
+      // Por ejemplo, notificar a los listeners, limpiar cache, etc.
+    } catch (e) {
+      print('Error refrescando clases: $e');
+    }
+  }
 }

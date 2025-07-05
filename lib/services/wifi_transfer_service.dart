@@ -22,8 +22,11 @@ class WiFiTransferService {
   // Referencias a servicios necesarios para procesar archivos
   late final DatabaseService _dbService;
   
+  // Callback para notificar cuando se reciba un documento exitosamente
+  Function(DocumentComplete)? onDocumentReceived;
+  
   // Constructor para inicializar servicios
-  WiFiTransferService() {
+  WiFiTransferService({this.onDocumentReceived}) {
     _dbService = DatabaseService();
   }
   
@@ -274,7 +277,7 @@ class WiFiTransferService {
       print('💾 Archivo temporal guardado: ${tempFile.path}');
       
       // 2. Procesar como archivo .jacha
-      final success = await _processJachaFile(tempFile);
+      final result = await _processJachaFile(tempFile);
       
       // 3. Limpiar archivo temporal
       try {
@@ -284,8 +287,13 @@ class WiFiTransferService {
         print('⚠️ No se pudo eliminar archivo temporal: $e');
       }
       
-      if (success) {
+      if (result != null) {
         print('✅ Archivo recibido e importado exitosamente');
+        
+        // Notificar que se recibió un documento exitosamente
+        if (onDocumentReceived != null) {
+          onDocumentReceived!(result);
+        }
       } else {
         print('❌ Error al importar archivo recibido');
       }
@@ -296,7 +304,7 @@ class WiFiTransferService {
   }
   
   /// Procesa un archivo .jacha recibido
-  Future<bool> _processJachaFile(File jachaFile) async {
+  Future<DocumentComplete?> _processJachaFile(File jachaFile) async {
     try {
       print('📖 Procesando archivo .jacha...');
       
@@ -332,11 +340,11 @@ class WiFiTransferService {
       final documentComplete = _parseJachaContent(data);
       await _importDocumentToDatabase(documentComplete);
       
-      return true;
+      return documentComplete;
       
     } catch (e) {
       print('❌ Error procesando archivo .jacha: $e');
-      return false;
+      return null;
     }
   }
   

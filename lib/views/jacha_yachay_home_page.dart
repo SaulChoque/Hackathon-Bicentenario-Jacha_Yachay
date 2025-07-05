@@ -3,7 +3,6 @@ import '../models/class_card_model.dart';
 import '../models/reception_model.dart';
 import '../widgets/class_card.dart';
 import '../services/class_service.dart';
-import '../services/database_service.dart';
 import '../views/enhanced_reception_page.dart';
 import '../views/create_class_page.dart';
 
@@ -303,22 +302,20 @@ class _JachaYachayHomePageState extends State<JachaYachayHomePage> {
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          // Botón temporal para resetear DB (solo para desarrollo)
+          // Botón para refrescar la página
           FloatingActionButton(
             onPressed: () async {
-              final databaseService = DatabaseService();
-              await databaseService.resetDatabase();
               _loadClasses();
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Base de datos reseteada'),
-                  backgroundColor: Colors.orange,
+                  content: Text('Página actualizada'),
+                  backgroundColor: Colors.green,
                 ),
               );
             },
-            backgroundColor: Colors.orange,
+            backgroundColor: Colors.green,
             child: const Icon(Icons.refresh),
-            heroTag: "reset_db",
+            heroTag: "refresh",
           ),
           const SizedBox(height: 16),
           // Botón de recibir

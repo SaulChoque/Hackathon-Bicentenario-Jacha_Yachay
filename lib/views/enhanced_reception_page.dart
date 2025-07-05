@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import '../models/reception_model.dart';
+import '../models/database_models.dart';
 import '../services/transfer_service.dart';
+import '../services/wifi_transfer_service.dart';
+import '../services/class_service.dart';
+import 'document_received_success_page.dart';
 
 class EnhancedReceptionPage extends StatefulWidget {
   final TransferMethodModel method;
@@ -24,6 +28,7 @@ class _EnhancedReceptionPageState extends State<EnhancedReceptionPage> {
   bool _receptionCompleted = false;
   
   final TransferService _transferService = TransferService();
+  WiFiTransferService? _wifiService;
   
   // Opción para usar servicios reales
   bool _useRealTransfer = true;
@@ -45,7 +50,7 @@ class _EnhancedReceptionPageState extends State<EnhancedReceptionPage> {
     // Detener servicios según el tipo y si se están usando servicios reales
     if (_useRealTransfer) {
       if (widget.method.method == TransferMethod.wifi) {
-        _transferService.stopWiFiReceiver();
+        _wifiService?.stopReceiver();
       } else if (widget.method.method == TransferMethod.nfc) {
         _transferService.stopNFCReceiver();
       }
@@ -99,7 +104,14 @@ class _EnhancedReceptionPageState extends State<EnhancedReceptionPage> {
         await _transferService.initializeRealServices();
         
         if (widget.method.method == TransferMethod.wifi) {
-          success = await _transferService.startWiFiReceiver();
+          // Crear WiFiTransferService con callback para documentos recibidos
+          _wifiService = WiFiTransferService(
+            onDocumentReceived: (DocumentComplete document) {
+              _onDocumentReceived(document);
+            },
+          );
+          
+          success = await _wifiService!.startReceiver();
           if (success) {
             setState(() {
               _status = 'Servidor WiFi iniciado - Dispositivo visible para recepción WiFi';
@@ -397,6 +409,39 @@ class _EnhancedReceptionPageState extends State<EnhancedReceptionPage> {
       setState(() {
         _status = 'Error solicitando permisos: $e';
       });
+    }
+  }
+
+  /// Maneja cuando se recibe un documento exitosamente
+  void _onDocumentReceived(DocumentComplete document) async {
+    print('📨 Documento recibido exitosamente en UI');
+    
+    // Detener el timer y marcarlo como completado
+    _timer.cancel();
+    setState(() {
+      _receptionCompleted = true;
+      _isReceiving = false;
+      _isListening = false;
+      _status = 'Documento recibido exitosamente';
+    });
+    
+    // Esperar un momento para que la UI se actualice
+    await Future.delayed(const Duration(milliseconds: 500));
+    
+    // Navegar a la vista de éxito con función de refresh
+    if (mounted) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DocumentReceivedSuccessPage(
+            receivedDocument: document,
+            onHomePressed: () {
+              // Función para refrescar las clases cuando se vaya al home
+              ClassService.refreshClasses();
+            },
+          ),
+        ),
+      );
     }
   }
 

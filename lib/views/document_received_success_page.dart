@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/database_models.dart';
+import '../models/class_detail_model.dart';
+import 'tema_detalle_view.dart';
 
 class DocumentReceivedSuccessPage extends StatelessWidget {
   final DocumentComplete receivedDocument;
@@ -260,40 +262,45 @@ class DocumentReceivedSuccessPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                // Botón secundario para ver el documento
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: OutlinedButton(
-                    onPressed: () {
-                      // TODO: Navegar a la vista del documento
-                      Navigator.of(context).popUntil((route) => route.isFirst);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Función de visualización en desarrollo'),
-                          backgroundColor: Colors.orange,
+              // Botón secundario para ver el documento
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: OutlinedButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => TemaDetalleView(
+                          task: TaskModel(
+                            documentId: receivedDocument.document.id,
+                            title: receivedDocument.document.title,
+                            subtitle: '',
+                            publishDate: '',
+                            icon: Icons.description,
+                          ),
                         ),
-                      );
-                    },
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF00BFA5),
-                      side: const BorderSide(
-                        color: Color(0xFF00BFA5),
-                        width: 2,
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                    );
+                  },
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF00BFA5),
+                    side: const BorderSide(
+                      color: Color(0xFF00BFA5),
+                      width: 2,
                     ),
-                    child: const Text(
-                      'Ver Documento',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Ver Documento',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
+              ),
               ],
             ),
           ),

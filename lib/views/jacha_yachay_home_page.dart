@@ -5,6 +5,7 @@ import '../widgets/class_card.dart';
 import '../services/class_service.dart';
 import '../services/database_service.dart';
 import '../views/reception_page.dart';
+import '../views/create_class_page.dart';
 
 class JachaYachayHomePage extends StatefulWidget {
   const JachaYachayHomePage({super.key});
@@ -56,7 +57,6 @@ class _JachaYachayHomePageState extends State<JachaYachayHomePage> {
     }
   }
 
-  // ...existing code...
   void _removeClass(int index) async {
     final classToRemove = classes[index];
     // Elimina de la base de datos si tiene ID
@@ -66,7 +66,6 @@ class _JachaYachayHomePageState extends State<JachaYachayHomePage> {
     // Recarga la lista desde la base de datos
     _loadClasses();
   }
-  // ...existing code...
 
   void _showReceptionMenu() {
     showModalBottomSheet(
@@ -336,33 +335,16 @@ class _JachaYachayHomePageState extends State<JachaYachayHomePage> {
           // Botón de agregar clase
           FloatingActionButton(
             onPressed: () async {
-              try {
-                // Crear una nueva clase de ejemplo
-                await ClassService.createClass(
-                  title: 'Nueva Clase',
-                  subtitle: 'Subtítulo',
-                  instructor: 'Nuevo Instructor',
-                  gradientStartColor: const Color(0xFF9C27B0),
-                  gradientEndColor: const Color(0xFF673AB7),
-                  icon: Icons.school,
-                );
-                
-                // Recargar las clases
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CreateClassPage(),
+                ),
+              );
+              
+              // Si se creó una clase, recargar la lista
+              if (result == true) {
                 _loadClasses();
-                
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Nueva clase agregada'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Error al agregar clase: $e'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
               }
             },
             backgroundColor: const Color(0xFF4285F4),

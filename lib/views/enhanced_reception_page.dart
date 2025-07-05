@@ -743,7 +743,7 @@ class _EnhancedReceptionPageState extends State<EnhancedReceptionPage> {
                 
                 const SizedBox(height: 12),
                 
-                // Botón para importar desde archivo
+                // Botón para importar desde archivos
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton.icon(

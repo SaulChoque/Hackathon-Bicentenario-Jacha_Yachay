@@ -6,6 +6,7 @@ class TaskModel {
   final String publishDate;
   final IconData icon;
   final bool isNew;
+  final int? documentId; // ID del documento en la base de datos
 
   TaskModel({
     required this.title,
@@ -13,6 +14,7 @@ class TaskModel {
     required this.publishDate,
     required this.icon,
     this.isNew = false,
+    this.documentId,
   });
 }
 

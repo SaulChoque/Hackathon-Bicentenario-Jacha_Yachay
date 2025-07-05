@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/class_detail_model.dart';
 import '../models/class_card_model.dart';
 import '../widgets/task_card.dart';
+import 'tema_detalle_view.dart';
 
 class ClassDetailPage extends StatefulWidget {
   final ClassCardModel classData;
@@ -40,11 +41,12 @@ class _ClassDetailPageState extends State<ClassDetailPage>
     if (className.contains('Base de Datos')) {
       return [
         TaskModel(
-          title: 'Tarea nueva: Oportunidad hasta 25.6.25 medio día.',
+          title: 'Trabajo Final - Desarrollo de Apps Flutter',
           subtitle: '',
           publishDate: 'Publicada el 24 jun (editada el ...',
           icon: Icons.assignment,
           isNew: true,
+          documentId: 1, // Referencia al documento en la base de datos
         ),
         TaskModel(
           title: 'Tarea nueva: Examen Recuperatorio',
@@ -70,6 +72,7 @@ class _ClassDetailPageState extends State<ClassDetailPage>
         subtitle: '',
         publishDate: 'Publicada ayer',
         icon: Icons.assignment,
+        documentId: 1, // Usar el documento por defecto
       ),
     ];
   }
@@ -305,59 +308,6 @@ class _ClassDetailPageState extends State<ClassDetailPage>
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-// Vista nueva para el detalle del tema
-class TemaDetalleView extends StatelessWidget {
-  final TaskModel task;
-  const TemaDetalleView({super.key, required this.task});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1F1F1F),
-        title: Row(
-          children: [
-            Icon(Icons.description, color: Color(0xFF4285F4)),
-            const SizedBox(width: 8),
-            const Text('Trabajo Final'),
-          ],
-        ),
-      ),
-      backgroundColor: const Color(0xFF1F1F1F),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                task.title,
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-              ),
-              const SizedBox(height: 18),
-              const Text(
-                'Cada grupo deberá desarrollar tres aplicaciones móviles usando Flutter, una para cada nivel de dificultad (básico, intermedio y avanzado), todas dentro de un mismo contexto temático...',
-                style: TextStyle(fontSize: 15, color: Colors.white),
-              ),
-              const SizedBox(height: 16),
-              const Text('Por ejemplo: Área TEATRO:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-              const SizedBox(height: 8),
-              Text('Ø App Básico: App de Cartelera Cultural', style: TextStyle(fontSize: 15, color: Colors.white)),
-              Text('Ø App Intermedio: Organización de Evento Teatral (Grupal)', style: TextStyle(fontSize: 15, color: Colors.white)),
-              Text('Ø App Avanzado: Simulador de Reserva de Entradas', style: TextStyle(fontSize: 15, color: Colors.white)),
-              const SizedBox(height: 16),
-              const Text(
-                'Las aplicaciones deberán funcionar sin conexión a internet y no usar bases de datos ni servicios externos. Se enfocarán en el diseño de interfaces, la navegación entre pantallas y la lógica interna del manejo de datos en memoria.',
-                style: TextStyle(fontSize: 15, color: Colors.white),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

@@ -99,7 +99,7 @@ class DatabaseService {
     });
 
     await db.insert('classes', {
-      'title': 'AUXILIATURA ESTADÍSTI...',
+      'title': 'AUXILIATURA EST',
       'subtitle': '',
       'instructor': 'Adriana Cardenas Soria',
       'gradient_start_color': '0xFFFF6B35',
@@ -110,7 +110,7 @@ class DatabaseService {
     });
 
     await db.insert('classes', {
-      'title': 'ÁLGEBRA PARALELO A ...',
+      'title': 'ÁLGEBRA PAR. A',
       'subtitle': 'Paralelo A',
       'instructor': 'Jonathan Orellana',
       'gradient_start_color': '0xFF1565C0',

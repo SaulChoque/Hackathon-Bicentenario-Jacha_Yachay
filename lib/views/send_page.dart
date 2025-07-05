@@ -93,22 +93,33 @@ class _SendPageState extends State<SendPage> {
 
   Future<void> _shareDocument() async {
     try {
-      await _exportService.exportAndShareDocument(widget.documentId);
+      // Usar el método mejorado que siempre retorna información del archivo
+      final result = await _exportService.exportDocumentAsJachaWithFallback(widget.documentId);
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Documento compartido exitosamente'),
+          SnackBar(
+            content: Text(result),
             backgroundColor: Colors.green,
+            duration: const Duration(seconds: 5),
           ),
         );
+        
+        // Intentar compartir si es posible
+        try {
+          await _exportService.exportAndShareDocument(widget.documentId);
+        } catch (shareError) {
+          print('Error al compartir (pero archivo creado): $shareError');
+          // No mostrar error aquí porque el archivo se creó exitosamente
+        }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error al compartir: $e'),
+            content: Text('Error: $e'),
             backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
           ),
         );
       }

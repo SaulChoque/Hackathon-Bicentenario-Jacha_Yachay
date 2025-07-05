@@ -278,13 +278,15 @@ class _DocumentEditorPageState extends State<DocumentEditorPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    // Título y botón en columnas separadas
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
                           'Contenido del Documento',
                           style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                         ),
+                        const SizedBox(height: 8),
                         PopupMenuButton<String>(
                           onSelected: _addArticleBlock,
                           itemBuilder: (context) => [
@@ -323,39 +325,48 @@ class _DocumentEditorPageState extends State<DocumentEditorPage> {
             const SizedBox(height: 24),
 
             // Preguntas
-            Card(
-              color: const Color(0xFF2D2D2D),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Preguntas del Documento',
-                          style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        ElevatedButton.icon(
-                          onPressed: _addQuestion,
-                          icon: const Icon(Icons.add),
-                          label: const Text('Agregar pregunta'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF4285F4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: Card(
+                    color: const Color(0xFF2D2D2D),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // Título y botón en columnas separadas (igual que en bloques)
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text(
+                                'Preguntas del Documento',
+                                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 8),
+                              ElevatedButton.icon(
+                                onPressed: _addQuestion,
+                                icon: const Icon(Icons.add),
+                                label: const Text('Agregar pregunta'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF4285F4),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 16),
+                          ..._questions.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final question = entry.value;
+                            return _buildQuestionEditor(question, index);
+                          }).toList(),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 16),
-                    ..._questions.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final question = entry.value;
-                      return _buildQuestionEditor(question, index);
-                    }).toList(),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
           ],
         ),

@@ -103,7 +103,7 @@ class TaskCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      if (task.isNew)
+                      /*if (task.isNew)
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,
@@ -121,7 +121,7 @@ class TaskCard extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ),
+                        ),*/
                     ],
                   ),
                   const SizedBox(height: 4),

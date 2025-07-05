@@ -97,7 +97,7 @@ class _ClassDetailPageState extends State<ClassDetailPage>
         children: [
           // Header con banner de la clase
           Container(
-            height: 280,
+            height: 220,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
@@ -137,32 +137,32 @@ class _ClassDetailPageState extends State<ClassDetailPage>
                   // Información de usuario y puntos de flama
                   Positioned(
                     top: 16,
-                    right: 16,
+                    right: 140,
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(
                           Icons.local_fire_department,
                           color: Colors.orange,
-                          size: 20,
+                          size: 20*3,
                         ),
                         const SizedBox(width: 4),
                         Text(
                           '42', // Número simulado
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 16,
+                            fontSize: 16*3,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        /*const SizedBox(width: 12),
                         IconButton(
                           onPressed: () {},
                           icon: const Icon(
                             Icons.more_vert,
                             color: Colors.white,
                           ),
-                        ),
+                        ),*/
                       ],
                     ),
                   ),
@@ -251,7 +251,7 @@ class _ClassDetailPageState extends State<ClassDetailPage>
               ),
             ),
             // Agregar comentario de clase después de cada tarea
-            Container(
+            /*Container(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -279,7 +279,7 @@ class _ClassDetailPageState extends State<ClassDetailPage>
                   ),
                 ],
               ),
-            ),
+            ),*/
           ],
         );
       },

@@ -680,7 +680,7 @@ class _EnhancedReceptionPageState extends State<EnhancedReceptionPage> {
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
-                    onPressed: _importFromFile,
+                    onPressed: _isReceiving ? null : _importFromFile,
                     style: OutlinedButton.styleFrom(
                       foregroundColor: widget.method.color,
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -689,12 +689,21 @@ class _EnhancedReceptionPageState extends State<EnhancedReceptionPage> {
                       ),
                       side: BorderSide(color: widget.method.color),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.file_upload),
-                        SizedBox(width: 8),
-                        Text('Importar desde Archivo', style: TextStyle(fontSize: 16)),
+                        _isReceiving 
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.file_upload),
+                        const SizedBox(width: 8),
+                        Text(
+                          _isReceiving ? 'Importando...' : 'Importar desde Archivo', 
+                          style: const TextStyle(fontSize: 16)
+                        ),
                       ],
                     ),
                   ),
@@ -740,32 +749,6 @@ class _EnhancedReceptionPageState extends State<EnhancedReceptionPage> {
                       ),
                     ),
                   ),
-                
-                const SizedBox(height: 12),
-                
-                // Botón para importar desde archivos
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: _isReceiving ? null : _importFromFile,
-                    icon: _isReceiving 
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.file_upload),
-                    label: Text(_isReceiving ? 'Importando...' : 'Importar desde Archivo'),
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: widget.method.color),
-                      foregroundColor: widget.method.color,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                    ),
-                  ),
-                ),
               ],
             ),
           ],

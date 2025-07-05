@@ -18,10 +18,15 @@ class _JachaYachayHomePageState extends State<JachaYachayHomePage> {
   bool isLoading = true;
   String errorMessage = '';
 
+  // Lista de usuarios para el menú de perfiles
+  final List<String> _users = ['BlankS', 'Hernan Yazid', 'María López', 'Carlos Rivera'];
+  String _selectedUser = 'nombre';
+
   @override
   void initState() {
     super.initState();
     _loadClasses();
+    _selectedUser = _users[1]; // Por defecto Hernan Yazid
   }
 
   Future<void> _loadClasses() async {
@@ -51,17 +56,11 @@ class _JachaYachayHomePageState extends State<JachaYachayHomePage> {
     }
   }
 
-  // ...existing code...
-  void _removeClass(int index) async {
-    final classToRemove = classes[index];
-    // Elimina de la base de datos si tiene ID
-    if (classToRemove.id != null) {
-      await ClassService.deleteClass(classToRemove.id!);
-    }
-    // Recarga la lista desde la base de datos
-    _loadClasses();
+  void _removeClass(int index) {
+    setState(() {
+      classes.removeAt(index);
+    });
   }
-  // ...existing code...
 
   void _showReceptionMenu() {
     showModalBottomSheet(
@@ -164,15 +163,66 @@ class _JachaYachayHomePageState extends State<JachaYachayHomePage> {
                 ),
               ),
               const SizedBox(width: 12),
-              CircleAvatar(
-                radius: 18,
-                backgroundColor: const Color(0xFF4285F4),
-                child: const Text(
-                  'H',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+              GestureDetector(
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    backgroundColor: const Color(0xFF2D2D2D),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                    ),
+                    builder: (context) => Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Selecciona un perfil',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        ..._users.map((name) {
+                          return ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: const Color(0xFF4285F4),
+                              child: Text(
+                                name[0],
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            title: Text(
+                              name,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            onTap: () {
+                              setState(() {
+                                _selectedUser = name;
+                              });
+                              Navigator.pop(context);
+                            },
+                          );
+                        }).toList(),
+                        const SizedBox(height: 16),
+                      ],
+                    ),
+                  );
+                },
+                child: CircleAvatar(
+                  radius: 18,
+                  backgroundColor: const Color(0xFF4285F4),
+                  child: Text(
+                    _selectedUser[0],
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
@@ -238,14 +288,12 @@ class _JachaYachayHomePageState extends State<JachaYachayHomePage> {
                   : ListView.builder(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       itemCount: classes.length,
-                      // ...existing code...
                       itemBuilder: (context, index) {
                         return ClassCard(
                           classData: classes[index],
                           onRemove: () => _removeClass(index),
                         );
                       },
-                      // ...existing code...
                     ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,

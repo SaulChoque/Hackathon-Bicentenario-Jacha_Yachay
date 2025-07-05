@@ -6,7 +6,12 @@ import '../services/database_service.dart';
 // Vista nueva para el detalle del tema
 class TemaDetalleView extends StatefulWidget {
   final TaskModel task;
-  const TemaDetalleView({super.key, required this.task});
+  final DocumentComplete? documentComplete; // Documento completo opcional
+  const TemaDetalleView({
+    super.key, 
+    required this.task,
+    this.documentComplete, // Si se proporciona, se usa directamente
+  });
 
   @override
   State<TemaDetalleView> createState() => _TemaDetalleViewState();
@@ -26,6 +31,16 @@ class _TemaDetalleViewState extends State<TemaDetalleView> {
 
   Future<void> _loadDocumentData() async {
     try {
+      // Si ya tenemos el documento completo, úsalo directamente
+      if (widget.documentComplete != null) {
+        setState(() {
+          documentComplete = widget.documentComplete;
+          isLoading = false;
+        });
+        return;
+      }
+      
+      // Si no, carga desde la base de datos usando el documentId
       if (widget.task.documentId != null) {
         final data = await _databaseService.getCompleteDocument(
           widget.task.documentId!,
@@ -35,10 +50,8 @@ class _TemaDetalleViewState extends State<TemaDetalleView> {
           isLoading = false;
         });
       } else {
-        // Si no hay documentId, usar datos por defecto (documentId = 1)
-        final data = await _databaseService.getCompleteDocument(1);
         setState(() {
-          documentComplete = data;
+          errorMessage = 'No se pudo encontrar el documento';
           isLoading = false;
         });
       }

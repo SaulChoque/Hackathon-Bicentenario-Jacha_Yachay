@@ -278,6 +278,7 @@ class DocumentReceivedSuccessPage extends StatelessWidget {
                             publishDate: '',
                             icon: Icons.description,
                           ),
+                          documentComplete: receivedDocument, // Pasar el documento completo
                         ),
                       ),
                     );

@@ -6,7 +6,8 @@ import tempfile
 import shutil
 from datetime import datetime
 from models.database import db  # Si db está definido en models/database.py# Asegúrate de que la ruta sea correcta según tu proyecto
-
+from werkzeug.utils import safe_join  # Importación corregida
+from flask import send_from_directory  # Asegúrate de tener esta importación
 content_bp = Blueprint('content', __name__)
 
 # Importación diferida para evitar circularidad
@@ -178,3 +179,114 @@ def not_found_error(error):
         'code': 404,
         'message': 'Endpoint no encontrado. Rutas disponibles: /subir (POST), /descargar/<nombre_archivo> (GET)'
     }), 404
+
+
+@content_bp.route('/listar', methods=['GET'])
+def listar_archivos():
+    try:
+        # Obtener ruta de configuración
+        upload_dir = current_app.config['UPLOAD_FOLDER']
+        
+        # Verificar si el directorio existe
+        if not os.path.exists(upload_dir):
+            return jsonify({
+                'status': 'error',
+                'code': 404,
+                'message': 'Directorio de upload no encontrado'
+            }), 404
+        
+        # Listar solo archivos .jacha
+        archivos = [f for f in os.listdir(upload_dir) 
+                   if os.path.isfile(safe_join(upload_dir, f)) and f.lower().endswith('.jacha')]
+        
+        # Obtener información adicional de la base de datos si es un documento
+        Documento = get_document_model()
+        documentos_info = []
+        
+        for archivo in archivos:
+            # Extraer ID del documento del nombre del archivo (doc_<id>.jacha)
+            if archivo.startswith('doc_') and archivo.endswith('.jacha'):
+                try:
+                    doc_id = int(archivo[4:-5])  # Extrae el número entre 'doc_' y '.jacha'
+                    documento = Documento.query.get(doc_id)
+                    
+                    if documento:
+                        documentos_info.append({
+                            'nombre_archivo': archivo,
+                            'documento_id': doc_id,
+                            'titulo': documento.titulo,
+                            'autor': documento.autor,
+                            'fecha': documento.fecha.strftime('%Y-%m-%d') if documento.fecha else None,
+                            'tamaño': os.path.getsize(safe_join(upload_dir, archivo))
+                        })
+                        continue
+                except (ValueError, IndexError):
+                    pass
+            
+            # Para archivos .jacha que no siguen el formato doc_<id>.jacha
+            documentos_info.append({
+                'nombre_archivo': archivo,
+                'documento_id': None,
+                'tamaño': os.path.getsize(safe_join(upload_dir, archivo))
+            })
+        
+        return jsonify({
+            'status': 'success',
+            'code': 200,
+            'archivos': documentos_info,
+            'total': len(archivos)
+        }), 200
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'code': 500,
+            'message': f'Error al listar archivos: {str(e)}'
+        }), 500
+
+@content_bp.route('/descargar/<nombre_archivo>', methods=['GET'])
+def descargar_archivo(nombre_archivo):
+    try:
+        # Validar nombre de archivo por seguridad
+        if not nombre_archivo.lower().endswith('.jacha'):
+            return jsonify({
+                'status': 'error',
+                'code': 400,
+                'message': 'Solo se permiten descargas de archivos .jacha'
+            }), 400
+        
+        # Obtener ruta de configuración
+        upload_dir = current_app.config['UPLOAD_FOLDER']
+        
+        # Verificar si el directorio existe
+        if not os.path.exists(upload_dir):
+            return jsonify({
+                'status': 'error',
+                'code': 404,
+                'message': 'Directorio de upload no encontrado'
+            }), 404
+        
+        # Construir ruta segura
+        file_path = safe_join(upload_dir, nombre_archivo)
+        
+        if not file_path or not os.path.exists(file_path):
+            return jsonify({
+                'status': 'error',
+                'code': 404,
+                'message': 'Archivo no encontrado'
+            }), 404
+        
+        # Descargar el archivo
+        return send_from_directory(
+            directory=upload_dir,
+            path=nombre_archivo,
+            as_attachment=True,
+            mimetype='application/octet-stream'
+        )
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'code': 500,
+            'message': f'Error al descargar archivo: {str(e)}'
+        }), 500

@@ -1,0 +1,72 @@
+¿Cuál es el propósito principal del bit BECN en la tecnología Frame Relay?
+A) Indicar que el ancho de banda comprometido ha sido superado
+B) Advertir al dispositivo transmisor sobre la congestión en el camino de retorno
+C) Señalar la pérdida de tramas en la red
+D) Determinar si la conexión es PVC o SVC
+ANSWER: B
+
+¿Cuál de las siguientes opciones describe correctamente una limitación de Frame Relay en redes modernas?
+A) Su incapacidad de manejar redes con alta confiabilidad en infraestructuras de baja probabilidad de error
+B) La dependencia en las capas superiores para la corrección de errores y gestión de flujo
+C) Su estructura rígida, que impide configuraciones de circuitos virtuales tanto permanentes como conmutados
+D) Su uso intensivo de recursos, que reduce el ancho de banda disponible para aplicaciones
+ANSWER: B
+
+¿Cuál era el beneficio de VoFR (Voice over Frame Relay) en las empresas antes del uso de VoIP?
+A) Enviar correos electrónicos más rápido
+B) Integrar la transmisión de voz y datos en una sola red
+C) Conectar impresoras inalámbricas
+D) Mejorar la velocidad de Internet
+ANSWER: B
+
+¿Cuál era una de las ventajas de Frame Relay para los proveedores de servicios de Internet (ISPs) en las primeras etapas de Internet? 
+A) Facilitar el acceso Wi-Fi a sus clientes
+B) Reducir el costo de las conexiones de televisión por cable
+C) Permitir a los clientes acceder a redes privadas virtuales (VPN) sin costo
+D) Conectar clientes corporativos en áreas remotas o de alta demanda
+ANSWER: D
+
+¿Cuál fue uno de los principales beneficios de Frame Relay en el sector financiero?
+A) Transmitir programas de televisión a cajeros automáticos
+B) Facilitar la comunicación por redes sociales en el trabajo
+C) Conectar sucursales y oficinas de manera económica y confiable
+D) Permitir la instalación de Wi-Fi gratuito en las oficinas
+ANSWER: C
+
+¿Cuál de las siguientes opciones representa un desafío actual para las redes Frame Relay en comparación con tecnologías más avanzadas?
+A) La baja latencia en la transmisión de datos
+B) La capacidad de escalar fácilmente a altos anchos de banda
+C) La falta de soporte para aplicaciones en tiempo real y servicios en la nube
+D) La facilidad de configuración y mantenimiento de la red
+ANSWER: C
+
+¿Qué aspecto de las redes Frame Relay dificulta su uso en entornos de ciberseguridad modernos?
+A) Su capacidad de gestionar múltiples protocolos
+B) La implementación de protocolos de seguridad avanzados
+C) La obsolescencia de su infraestructura física y limitaciones en seguridad
+D) Su diseño orientado a la conexión y confiabilidad
+ANSWER: C
+
+¿Cuál de las siguientes afirmaciones describe mejor un problema relacionado con el costo de mantenimiento de Frame Relay?
+A) Se requieren grandes inversiones iniciales para su implementación
+B) La disminución en el soporte por parte de proveedores de servicios
+C) Los costos de hardware son significativamente más altos que en otras tecnologías
+D) Existen numerosas opciones de personalización que aumentan los costos
+ANSWER: B
+
+¿Qué ventaja principal ofrece SDN (Redes Definidas por Software) en comparación con Frame Relay?
+
+a) Mayor necesidad de hardware especializado.
+b) Control dinámico de la red y configuraciones en tiempo real.
+c) Mayor dependencia de infraestructura física específica.
+d) Costos operativos más altos.
+ANSWER: B
+
+¿Qué tecnología es ideal para mejorar la seguridad en una red Frame Relay al conectarse a servicios en la nube?
+
+a) VPNs y cifrado IPsec.
+b) Transmisión sin encriptación.
+c) Frame Relay nativo.
+d) Conexión por banda ancha sin cifrado.
+ANSWER: A
+

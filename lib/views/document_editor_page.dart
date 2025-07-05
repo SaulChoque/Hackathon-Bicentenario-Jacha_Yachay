@@ -526,23 +526,22 @@ class _DocumentEditorPageState extends State<DocumentEditorPage> {
                 ),
                 const SizedBox(height: 16),
                 if (question.type == 'multiple_choice') ...[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Opciones de respuesta:',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                  const Text(
+                    'Opciones de respuesta:',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                  ),
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: ElevatedButton.icon(
+                      onPressed: () => _addOption(questionIndex),
+                      icon: const Icon(Icons.add, size: 16),
+                      label: const Text('Agregar opción'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF4285F4),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       ),
-                      ElevatedButton.icon(
-                        onPressed: () => _addOption(questionIndex),
-                        icon: const Icon(Icons.add, size: 16),
-                        label: const Text('Agregar opción'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF4285F4),
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                   const SizedBox(height: 12),
                   ...question.options.asMap().entries.map((entry) {

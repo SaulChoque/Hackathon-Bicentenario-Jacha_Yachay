@@ -8,6 +8,7 @@ import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:archive/archive.dart';
 import '../models/database_models.dart';
 import 'database_service.dart';
 
@@ -308,38 +309,72 @@ class WiFiTransferService {
     try {
       print('📖 Procesando archivo .jacha...');
       
-      // TODO: En una implementación completa, aquí descomprimirías el ZIP
-      // Por ahora, asumimos que el archivo contiene JSON directo para simplificar
+      // Leer archivo como bytes
+      final fileBytes = await jachaFile.readAsBytes();
       
-      String content;
+      // Intentar descomprimir como archivo ZIP
+      Archive? archive;
       try {
-        // Intentar leer como JSON directamente
-        content = await jachaFile.readAsString();
+        archive = ZipDecoder().decodeBytes(fileBytes);
+        print('✅ Archivo .jacha descomprimido exitosamente');
       } catch (e) {
-        print('⚠️ Error leyendo archivo como texto, intentando procesar como binario...');
-        // Si no es texto plano, podría ser un ZIP comprimido
-        // Por ahora creamos contenido de ejemplo
-        content = _createSampleDocumentJson();
+        print('⚠️ Error descomprimiendo archivo ZIP: $e');
+        // Si no es un ZIP válido, intentar leer como JSON directo
+        try {
+          final content = await jachaFile.readAsString();
+          final data = jsonDecode(content);
+          if (!_isValidJachaFile(data)) {
+            throw Exception('Archivo .jacha no válido');
+          }
+          final documentComplete = _parseJachaContent(data);
+          await _importDocumentToDatabase(documentComplete);
+          return documentComplete;
+        } catch (e2) {
+          throw Exception('El archivo no es un ZIP válido ni un JSON válido: $e2');
+        }
       }
       
-      Map<String, dynamic> data;
-      try {
-        data = jsonDecode(content);
-      } catch (e) {
-        print('⚠️ Error decodificando JSON, creando documento de ejemplo...');
-        data = jsonDecode(_createSampleDocumentJson());
+      // Buscar archivo JSON dentro del ZIP
+      ArchiveFile? jsonFile;
+      for (final file in archive.files) {
+        if (file.name.toLowerCase().endsWith('.json')) {
+          jsonFile = file;
+          print('📄 Encontrado archivo JSON: ${file.name}');
+          break;
+        }
       }
       
-      // Verificar que es un archivo válido de Jacha Yachay
+      if (jsonFile == null) {
+        // Buscar específicamente document.json
+        for (final file in archive.files) {
+          if (file.name.toLowerCase() == 'document.json' || 
+              file.name.toLowerCase().contains('document')) {
+            jsonFile = file;
+            print('📄 Encontrado archivo de documento: ${file.name}');
+            break;
+          }
+        }
+      }
+      
+      if (jsonFile == null) {
+        throw Exception('No se encontró archivo JSON en el archivo .jacha');
+      }
+      
+      // Extraer y leer contenido JSON
+      final jsonBytes = jsonFile.content as List<int>;
+      final jsonContent = utf8.decode(jsonBytes);
+      
+      print('📝 Contenido JSON extraído: ${jsonContent.length} caracteres');
+      
+      // Parsear JSON
+      final data = jsonDecode(jsonContent);
       if (!_isValidJachaFile(data)) {
-        print('⚠️ Archivo no válido, creando documento de ejemplo...');
-        data = jsonDecode(_createSampleDocumentJson());
+        throw Exception('El archivo JSON no es un documento Jacha Yachay válido');
       }
       
       // Convertir a DocumentComplete y guardar en base de datos
       final documentComplete = _parseJachaContent(data);
       await _importDocumentToDatabase(documentComplete);
-      
       return documentComplete;
       
     } catch (e) {
@@ -355,32 +390,7 @@ class WiFiTransferService {
            data['document'] is Map;
   }
   
-  /// Crea contenido JSON de ejemplo para documentos recibidos
-  String _createSampleDocumentJson() {
-    final now = DateTime.now();
-    return jsonEncode({
-      'version': '1.0',
-      'document': {
-        'authorId': 'wifi_sender',
-        'createdAt': now.toIso8601String(),
-        'title': 'Documento Recibido via WiFi - ${now.day}/${now.month}/${now.year}',
-        'classId': 1,
-      },
-      'articleBlocks': [
-        {
-          'type': 'title',
-          'content': 'Documento Recibido via WiFi',
-          'blockOrder': 1,
-        },
-        {
-          'type': 'paragraph',
-          'content': 'Este documento fue recibido desde otro dispositivo usando transferencia WiFi. El archivo fue procesado automáticamente y guardado en la base de datos local.',
-          'blockOrder': 2,
-        },
-      ],
-      'questions': [],
-    });
-  }
+  // Método de documento de ejemplo eliminado según requerimiento
   
   /// Convierte el contenido JSON en DocumentComplete
   DocumentComplete _parseJachaContent(Map<String, dynamic> data) {

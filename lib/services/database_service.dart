@@ -20,7 +20,7 @@ class DatabaseService {
     
     return await openDatabase(
       path,
-      version: 2, // Incrementamos la versión para activar onUpgrade
+      version: 3, // Incrementamos la versión para la nueva migración
       onCreate: _createDatabase,
       onUpgrade: _upgradeDatabase,
     );
@@ -48,6 +48,18 @@ class DatabaseService {
       if (count.first['count'] == 0) {
         await _insertClassSampleData(db);
       }
+    }
+    
+    if (oldVersion < 3) {
+      // Agregar columna class_id a la tabla documents
+      await db.execute('ALTER TABLE documents ADD COLUMN class_id INTEGER');
+      
+      // Agregar foreign key constraint (nota: SQLite no permite ADD CONSTRAINT, 
+      // pero podemos crear un índice para mejorar rendimiento)
+      await db.execute('CREATE INDEX idx_documents_class_id ON documents(class_id)');
+      
+      // Actualizar documentos existentes para asignarlos a la primera clase
+      await db.execute('UPDATE documents SET class_id = 1 WHERE class_id IS NULL');
     }
   }
 
@@ -116,7 +128,9 @@ class DatabaseService {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         author_id TEXT,  
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        title TEXT
+        title TEXT,
+        class_id INTEGER,
+        FOREIGN KEY(class_id) REFERENCES classes(id)
       )
     ''');
 
@@ -179,7 +193,37 @@ class DatabaseService {
     await db.insert('documents', {
       'author_id': 'instructor_001',
       'created_at': DateTime.now().toIso8601String(),
-      'title': 'Trabajo Final - Desarrollo de Apps Flutter'
+      'title': 'Trabajo Final - Desarrollo de Apps Flutter',
+      'class_id': 1, // Asignar a la primera clase (Base de Datos III)
+    });
+
+    // Insertar más documentos para diferentes clases
+    await db.insert('documents', {
+      'author_id': 'instructor_002',
+      'created_at': DateTime.now().subtract(Duration(days: 3)).toIso8601String(),
+      'title': 'Examen Recuperatorio - Base de Datos',
+      'class_id': 1, // Base de Datos III
+    });
+
+    await db.insert('documents', {
+      'author_id': 'instructor_003',
+      'created_at': DateTime.now().subtract(Duration(days: 5)).toIso8601String(),
+      'title': 'Proyecto Final - Robot Autónomo',
+      'class_id': 3, // INF-357 ROBÓTICA
+    });
+
+    await db.insert('documents', {
+      'author_id': 'instructor_004',
+      'created_at': DateTime.now().subtract(Duration(days: 2)).toIso8601String(),
+      'title': 'Análisis Estadístico - Proyecto Grupal',
+      'class_id': 4, // AUXILIATURA ESTADÍSTI...
+    });
+
+    await db.insert('documents', {
+      'author_id': 'instructor_005',
+      'created_at': DateTime.now().subtract(Duration(days: 1)).toIso8601String(),
+      'title': 'Ejercicios de Álgebra Lineal',
+      'class_id': 5, // ÁLGEBRA PARALELO A
     });
 
     // Insertar bloques de artículo
@@ -209,6 +253,66 @@ class DatabaseService {
       'type': 'paragraph',
       'content': 'Las aplicaciones deberán funcionar sin conexión a internet y no usar bases de datos ni servicios externos. Se enfocarán en el diseño de interfaces, la navegación entre pantallas y la lógica interna del manejo de datos en memoria.',
       'block_order': 4
+    });
+
+    // Agregar bloques para documento 2 (Examen Recuperatorio)
+    await db.insert('article_blocks', {
+      'document_id': 2,
+      'type': 'title',
+      'content': 'Examen Recuperatorio - Base de Datos',
+      'block_order': 1
+    });
+
+    await db.insert('article_blocks', {
+      'document_id': 2,
+      'type': 'paragraph',
+      'content': 'El examen recuperatorio abarcará todos los temas vistos durante el semestre, incluyendo normalización, consultas SQL avanzadas, y diseño de bases de datos.',
+      'block_order': 2
+    });
+
+    // Agregar bloques para documento 3 (Proyecto Robótica)
+    await db.insert('article_blocks', {
+      'document_id': 3,
+      'type': 'title',
+      'content': 'Proyecto Final - Robot Autónomo',
+      'block_order': 1
+    });
+
+    await db.insert('article_blocks', {
+      'document_id': 3,
+      'type': 'paragraph',
+      'content': 'Desarrollar un robot autónomo capaz de navegar por un laberinto y encontrar la salida utilizando sensores ultrasónicos y algoritmos de pathfinding.',
+      'block_order': 2
+    });
+
+    // Agregar bloques para documento 4 (Estadística)
+    await db.insert('article_blocks', {
+      'document_id': 4,
+      'type': 'title',
+      'content': 'Análisis Estadístico - Proyecto Grupal',
+      'block_order': 1
+    });
+
+    await db.insert('article_blocks', {
+      'document_id': 4,
+      'type': 'paragraph',
+      'content': 'Realizar un análisis estadístico completo de un conjunto de datos reales, aplicando técnicas de estadística descriptiva e inferencial.',
+      'block_order': 2
+    });
+
+    // Agregar bloques para documento 5 (Álgebra)
+    await db.insert('article_blocks', {
+      'document_id': 5,
+      'type': 'title',
+      'content': 'Ejercicios de Álgebra Lineal',
+      'block_order': 1
+    });
+
+    await db.insert('article_blocks', {
+      'document_id': 5,
+      'type': 'paragraph',
+      'content': 'Serie de ejercicios sobre vectores, matrices, determinantes y sistemas de ecuaciones lineales.',
+      'block_order': 2
     });
 
     // Insertar preguntas de ejemplo
@@ -264,6 +368,12 @@ class DatabaseService {
   Future<List<Document>> getAllDocuments() async {
     final db = await database;
     final maps = await db.query('documents');
+    return maps.map((map) => Document.fromMap(map)).toList();
+  }
+
+  Future<List<Document>> getDocumentsByClass(int classId) async {
+    final db = await database;
+    final maps = await db.query('documents', where: 'class_id = ?', whereArgs: [classId]);
     return maps.map((map) => Document.fromMap(map)).toList();
   }
 

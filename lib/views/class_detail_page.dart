@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/class_detail_model.dart';
 import '../models/class_card_model.dart';
+import '../services/database_service.dart';
 import '../widgets/task_card.dart';
 import 'tema_detalle_view.dart';
 
@@ -19,15 +20,18 @@ class ClassDetailPage extends StatefulWidget {
 class _ClassDetailPageState extends State<ClassDetailPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  late List<TaskModel> tasks;
+  List<TaskModel> tasks = [];
+  bool isLoading = true;
+  String errorMessage = '';
+  final DatabaseService _databaseService = DatabaseService();
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     
-    // Simulamos datos de tareas para la clase seleccionada
-    tasks = _getTasksForClass(widget.classData.title);
+    // Cargar tareas de la clase seleccionada
+    _loadTasksForClass();
   }
 
   @override
@@ -36,7 +40,50 @@ class _ClassDetailPageState extends State<ClassDetailPage>
     super.dispose();
   }
 
-  List<TaskModel> _getTasksForClass(String className) {
+  Future<void> _loadTasksForClass() async {
+    try {
+      setState(() {
+        isLoading = true;
+        errorMessage = '';
+      });
+
+      final classId = widget.classData.id;
+      if (classId != null) {
+        // Obtener documentos de esta clase específica
+        final documents = await _databaseService.getDocumentsByClass(classId);
+        
+        // Convertir documentos a TaskModel
+        final loadedTasks = documents.map((document) => TaskModel(
+          title: document.title,
+          subtitle: '',
+          publishDate: 'Publicada el ${document.createdAt.day}/${document.createdAt.month}',
+          icon: Icons.assignment,
+          isNew: DateTime.now().difference(document.createdAt).inDays < 7, // Nuevo si tiene menos de 7 días
+          documentId: document.id,
+        )).toList();
+
+        setState(() {
+          tasks = loadedTasks;
+          isLoading = false;
+        });
+      } else {
+        // Fallback a datos por defecto si no hay ID
+        setState(() {
+          tasks = _getDefaultTasksForClass(widget.classData.title);
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Error al cargar las tareas: $e';
+        isLoading = false;
+        // Usar datos por defecto en caso de error
+        tasks = _getDefaultTasksForClass(widget.classData.title);
+      });
+    }
+  }
+
+  List<TaskModel> _getDefaultTasksForClass(String className) {
     // Datos simulados basados en la imagen
     if (className.contains('Base de Datos')) {
       return [
@@ -232,6 +279,66 @@ class _ClassDetailPageState extends State<ClassDetailPage>
   }
 
   Widget _buildTopicsTab() {
+    if (isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(
+          color: Color(0xFF4285F4),
+        ),
+      );
+    }
+
+    if (errorMessage.isNotEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.error_outline,
+              size: 80,
+              color: Colors.red,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              errorMessage,
+              style: const TextStyle(
+                color: Colors.red,
+                fontSize: 16,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _loadTasksForClass,
+              child: const Text('Reintentar'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (tasks.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.assignment_outlined,
+              size: 80,
+              color: Colors.grey,
+            ),
+            SizedBox(height: 16),
+            Text(
+              'No hay temas disponibles para esta clase',
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 18,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 16),
       itemCount: tasks.length,

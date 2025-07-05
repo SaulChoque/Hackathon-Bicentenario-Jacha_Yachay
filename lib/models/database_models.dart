@@ -5,12 +5,14 @@ class Document {
   final String authorId;
   final DateTime createdAt;
   final String title;
+  final int? classId; // ID de la clase a la que pertenece
 
   Document({
     this.id,
     required this.authorId,
     required this.createdAt,
     required this.title,
+    this.classId,
   });
 
   Map<String, dynamic> toMap() {
@@ -19,6 +21,7 @@ class Document {
       'author_id': authorId,
       'created_at': createdAt.toIso8601String(),
       'title': title,
+      'class_id': classId,
     };
   }
 
@@ -28,6 +31,7 @@ class Document {
       authorId: map['author_id'],
       createdAt: DateTime.parse(map['created_at']),
       title: map['title'],
+      classId: map['class_id'],
     );
   }
 }

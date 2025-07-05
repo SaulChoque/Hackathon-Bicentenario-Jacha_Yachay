@@ -23,6 +23,7 @@ class ClassService {
   /// Convierte ClassData (DB) a ClassCardModel (UI)
   static ClassCardModel _convertToClassCardModel(ClassData classData) {
     return ClassCardModel(
+      id: classData.id, // Incluir el ID de la base de datos
       title: classData.title,
       subtitle: classData.subtitle,
       instructor: classData.instructor,

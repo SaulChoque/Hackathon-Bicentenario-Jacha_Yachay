@@ -4,7 +4,7 @@ import '../models/reception_model.dart';
 import '../widgets/class_card.dart';
 import '../services/class_service.dart';
 import '../services/database_service.dart';
-import '../views/reception_page.dart';
+import '../views/enhanced_reception_page.dart';
 import '../views/create_class_page.dart';
 
 class JachaYachayHomePage extends StatefulWidget {
@@ -107,7 +107,7 @@ class _JachaYachayHomePageState extends State<JachaYachayHomePage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ReceptionPage(method: method),
+                      builder: (context) => EnhancedReceptionPage(method: method),
                     ),
                   );
                 },

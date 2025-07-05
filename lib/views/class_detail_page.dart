@@ -5,7 +5,7 @@ import '../models/reception_model.dart';
 import '../services/database_service.dart';
 import '../widgets/task_card.dart';
 import 'tema_detalle_view.dart';
-import 'send_page.dart';
+import 'enhanced_send_page.dart';
 import 'document_editor_page.dart';
 
 class ClassDetailPage extends StatefulWidget {
@@ -214,7 +214,7 @@ class _ClassDetailPageState extends State<ClassDetailPage>
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => SendPage(
+                              builder: (context) => EnhancedSendPage(
                                 method: method,
                                 documentId: documentId,
                               ),

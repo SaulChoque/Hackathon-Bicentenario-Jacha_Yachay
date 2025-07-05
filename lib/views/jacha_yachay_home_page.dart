@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../models/class_card_model.dart';
+import '../models/reception_model.dart';
 import '../widgets/class_card.dart';
 import '../services/class_service.dart';
+import '../views/reception_page.dart';
 
 class JachaYachayHomePage extends StatefulWidget {
   const JachaYachayHomePage({super.key});
@@ -17,6 +19,58 @@ class _JachaYachayHomePageState extends State<JachaYachayHomePage> {
     setState(() {
       classes.removeAt(index);
     });
+  }
+
+  void _showReceptionMenu() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF2D2D2D),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Selecciona método de recepción',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ...ReceptionMethodModel.getAllMethods().map((method) {
+              return ListTile(
+                leading: Icon(
+                  method.icon,
+                  color: method.color,
+                  size: 28,
+                ),
+                title: Text(
+                  method.name,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ReceptionPage(method: method),
+                    ),
+                  );
+                },
+              );
+            }).toList(),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -116,20 +170,38 @@ class _JachaYachayHomePageState extends State<JachaYachayHomePage> {
                 );
               },
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Aquí se podría agregar funcionalidad para añadir nuevas clases
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Función para agregar nueva clase'),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          // Botón de recibir
+          FloatingActionButton(
+            onPressed: _showReceptionMenu,
+            backgroundColor: const Color(0xFF00BFA5),
+            heroTag: "receive",
+            child: const Icon(
+              Icons.download,
+              color: Colors.white,
             ),
-          );
-        },
-        backgroundColor: const Color(0xFF4285F4),
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-        ),
+          ),
+          const SizedBox(height: 16),
+          // Botón de agregar clase
+          FloatingActionButton(
+            onPressed: () {
+              // Aquí se podría agregar funcionalidad para añadir nuevas clases
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Función para agregar nueva clase'),
+                ),
+              );
+            },
+            backgroundColor: const Color(0xFF4285F4),
+            heroTag: "add",
+            child: const Icon(
+              Icons.add,
+              color: Colors.white,
+            ),
+          ),
+        ],
       ),
     );
   }

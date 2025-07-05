@@ -20,9 +20,93 @@ class DatabaseService {
     
     return await openDatabase(
       path,
-      version: 1,
+      version: 2, // Incrementamos la versión para activar onUpgrade
       onCreate: _createDatabase,
+      onUpgrade: _upgradeDatabase,
     );
+  }
+
+  Future<void> _upgradeDatabase(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      // Agregar tabla classes si no existe
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS classes (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          title TEXT NOT NULL,
+          subtitle TEXT,
+          instructor TEXT NOT NULL,
+          gradient_start_color TEXT NOT NULL,
+          gradient_end_color TEXT NOT NULL,
+          icon_name TEXT NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          is_active BOOLEAN DEFAULT 1
+        )
+      ''');
+
+      // Insertar datos de ejemplo de clases si la tabla está vacía
+      final count = await db.rawQuery('SELECT COUNT(*) as count FROM classes');
+      if (count.first['count'] == 0) {
+        await _insertClassSampleData(db);
+      }
+    }
+  }
+
+  Future<void> _insertClassSampleData(Database db) async {
+    // Insertar clases de ejemplo
+    await db.insert('classes', {
+      'title': 'Base de Datos III',
+      'subtitle': 'Celia Tarquino',
+      'instructor': 'Celia Tarquino',
+      'gradient_start_color': '0xFF4285F4',
+      'gradient_end_color': '0xFF1A73E8',
+      'icon_name': 'storage',
+      'created_at': DateTime.now().toIso8601String(),
+      'is_active': 1
+    });
+
+    await db.insert('classes', {
+      'title': 'INF261 - DAT251',
+      'subtitle': 'BASE DE DATOS III',
+      'instructor': 'Celia Tarquino',
+      'gradient_start_color': '0xFFD93D8B',
+      'gradient_end_color': '0xFFB91C7C',
+      'icon_name': 'bar_chart',
+      'created_at': DateTime.now().toIso8601String(),
+      'is_active': 1
+    });
+
+    await db.insert('classes', {
+      'title': 'INF-357 ROBÓTICA',
+      'subtitle': 'Temporada I/2025',
+      'instructor': 'Nagib Vallejos Mamani',
+      'gradient_start_color': '0xFF0D7377',
+      'gradient_end_color': '0xFF14A085',
+      'icon_name': 'smart_toy',
+      'created_at': DateTime.now().toIso8601String(),
+      'is_active': 1
+    });
+
+    await db.insert('classes', {
+      'title': 'AUXILIATURA ESTADÍSTI...',
+      'subtitle': '',
+      'instructor': 'Adriana Cardenas Soria',
+      'gradient_start_color': '0xFFFF6B35',
+      'gradient_end_color': '0xFFE55100',
+      'icon_name': 'analytics',
+      'created_at': DateTime.now().toIso8601String(),
+      'is_active': 1
+    });
+
+    await db.insert('classes', {
+      'title': 'ÁLGEBRA PARALELO A ...',
+      'subtitle': 'Paralelo A',
+      'instructor': 'Jonathan Orellana',
+      'gradient_start_color': '0xFF1565C0',
+      'gradient_end_color': '0xFF0D47A1',
+      'icon_name': 'calculate',
+      'created_at': DateTime.now().toIso8601String(),
+      'is_active': 1
+    });
   }
 
   Future<void> _createDatabase(Database db, int version) async {
@@ -68,6 +152,21 @@ class DatabaseService {
         content TEXT,
         block_order INTEGER,
         FOREIGN KEY(document_id) REFERENCES documents(id)
+      )
+    ''');
+
+    // Crear tabla classes
+    await db.execute('''
+      CREATE TABLE classes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        subtitle TEXT,
+        instructor TEXT NOT NULL,
+        gradient_start_color TEXT NOT NULL,
+        gradient_end_color TEXT NOT NULL,
+        icon_name TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        is_active BOOLEAN DEFAULT 1
       )
     ''');
 
@@ -151,6 +250,9 @@ class DatabaseService {
       'text': 'Cuatro aplicaciones',
       'is_correct': 0
     });
+
+    // Insertar clases de ejemplo
+    await _insertClassSampleData(db);
   }
 
   // CRUD para Documents
@@ -215,6 +317,37 @@ class DatabaseService {
     return maps.map((map) => QuestionOption.fromMap(map)).toList();
   }
 
+  // CRUD para Classes
+  Future<int> insertClass(ClassData classData) async {
+    final db = await database;
+    return await db.insert('classes', classData.toMap());
+  }
+
+  Future<List<ClassData>> getAllClasses() async {
+    final db = await database;
+    final maps = await db.query('classes', where: 'is_active = ?', whereArgs: [1], orderBy: 'created_at DESC');
+    return maps.map((map) => ClassData.fromMap(map)).toList();
+  }
+
+  Future<ClassData?> getClass(int id) async {
+    final db = await database;
+    final maps = await db.query('classes', where: 'id = ?', whereArgs: [id]);
+    if (maps.isNotEmpty) {
+      return ClassData.fromMap(maps.first);
+    }
+    return null;
+  }
+
+  Future<int> updateClass(ClassData classData) async {
+    final db = await database;
+    return await db.update('classes', classData.toMap(), where: 'id = ?', whereArgs: [classData.id]);
+  }
+
+  Future<int> deleteClass(int id) async {
+    final db = await database;
+    return await db.update('classes', {'is_active': 0}, where: 'id = ?', whereArgs: [id]);
+  }
+
   // Método para obtener documento completo
   Future<DocumentComplete?> getCompleteDocument(int documentId) async {
     final document = await getDocument(documentId);
@@ -241,5 +374,12 @@ class DatabaseService {
   Future<void> closeDatabase() async {
     final db = await database;
     await db.close();
+  }
+
+  /// Método para limpiar completamente la base de datos (útil para desarrollo)
+  Future<void> resetDatabase() async {
+    String path = join(await getDatabasesPath(), 'jacha_yachay.db');
+    await deleteDatabase(path);
+    _database = null; // Forzar recreación
   }
 }

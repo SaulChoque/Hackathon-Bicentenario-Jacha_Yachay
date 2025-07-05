@@ -136,6 +136,59 @@ class ArticleBlock {
   }
 }
 
+// Modelo para las clases/materias
+class ClassData {
+  final int? id;
+  final String title;
+  final String subtitle;
+  final String instructor;
+  final String gradientStartColor; // Almacenado como hex string
+  final String gradientEndColor;   // Almacenado como hex string
+  final String iconName;           // Nombre del icono
+  final DateTime createdAt;
+  final bool isActive;
+
+  ClassData({
+    this.id,
+    required this.title,
+    required this.subtitle,
+    required this.instructor,
+    required this.gradientStartColor,
+    required this.gradientEndColor,
+    required this.iconName,
+    required this.createdAt,
+    this.isActive = true,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'subtitle': subtitle,
+      'instructor': instructor,
+      'gradient_start_color': gradientStartColor,
+      'gradient_end_color': gradientEndColor,
+      'icon_name': iconName,
+      'created_at': createdAt.toIso8601String(),
+      'is_active': isActive ? 1 : 0,
+    };
+  }
+
+  factory ClassData.fromMap(Map<String, dynamic> map) {
+    return ClassData(
+      id: map['id'],
+      title: map['title'],
+      subtitle: map['subtitle'],
+      instructor: map['instructor'],
+      gradientStartColor: map['gradient_start_color'],
+      gradientEndColor: map['gradient_end_color'],
+      iconName: map['icon_name'],
+      createdAt: DateTime.parse(map['created_at']),
+      isActive: map['is_active'] == 1,
+    );
+  }
+}
+
 // Modelo completo que incluye documento con sus bloques y preguntas
 class DocumentComplete {
   final Document document;

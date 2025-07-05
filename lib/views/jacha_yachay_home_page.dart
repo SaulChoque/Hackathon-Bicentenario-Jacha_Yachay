@@ -3,6 +3,7 @@ import '../models/class_card_model.dart';
 import '../models/reception_model.dart';
 import '../widgets/class_card.dart';
 import '../services/class_service.dart';
+import '../services/database_service.dart';
 import '../views/reception_page.dart';
 
 class JachaYachayHomePage extends StatefulWidget {
@@ -13,7 +14,42 @@ class JachaYachayHomePage extends StatefulWidget {
 }
 
 class _JachaYachayHomePageState extends State<JachaYachayHomePage> {
-  List<ClassCardModel> classes = ClassService.getDefaultClasses();
+  List<ClassCardModel> classes = [];
+  bool isLoading = true;
+  String errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadClasses();
+  }
+
+  Future<void> _loadClasses() async {
+    try {
+      setState(() {
+        isLoading = true;
+        errorMessage = '';
+      });
+
+      // Inicializar datos por defecto si es necesario
+      await ClassService.initializeDefaultData();
+      
+      // Cargar clases desde la base de datos
+      final loadedClasses = await ClassService.getClasses();
+      
+      setState(() {
+        classes = loadedClasses;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Error al cargar las clases: $e';
+        isLoading = false;
+        // Usar datos por defecto en caso de error
+        classes = ClassService.getDefaultClasses();
+      });
+    }
+  }
 
   void _removeClass(int index) {
     setState(() {
@@ -139,40 +175,91 @@ class _JachaYachayHomePageState extends State<JachaYachayHomePage> {
           ),
         ],
       ),
-      body: classes.isEmpty
+      body: isLoading
           ? const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.school_outlined,
-                    size: 80,
-                    color: Colors.grey,
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    'No hay clases disponibles',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 18,
-                    ),
-                  ),
-                ],
+              child: CircularProgressIndicator(
+                color: Color(0xFF4285F4),
               ),
             )
-          : ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              itemCount: classes.length,
-              itemBuilder: (context, index) {
-                return ClassCard(
-                  classData: classes[index],
-                  onRemove: () => _removeClass(index),
-                );
-              },
-            ),
+          : errorMessage.isNotEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        size: 80,
+                        color: Colors.red,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        errorMessage,
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontSize: 16,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: _loadClasses,
+                        child: const Text('Reintentar'),
+                      ),
+                    ],
+                  ),
+                )
+              : classes.isEmpty
+                  ? const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.school_outlined,
+                            size: 80,
+                            color: Colors.grey,
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'No hay clases disponibles',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      itemCount: classes.length,
+                      itemBuilder: (context, index) {
+                        return ClassCard(
+                          classData: classes[index],
+                          onRemove: () => _removeClass(index),
+                        );
+                      },
+                    ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
+          // Botón temporal para resetear DB (solo para desarrollo)
+          FloatingActionButton(
+            onPressed: () async {
+              final databaseService = DatabaseService();
+              await databaseService.resetDatabase();
+              _loadClasses();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Base de datos reseteada'),
+                  backgroundColor: Colors.orange,
+                ),
+              );
+            },
+            backgroundColor: Colors.orange,
+            child: const Icon(Icons.refresh),
+            heroTag: "reset_db",
+          ),
+          const SizedBox(height: 16),
           // Botón de recibir
           FloatingActionButton(
             onPressed: _showReceptionMenu,
@@ -186,13 +273,35 @@ class _JachaYachayHomePageState extends State<JachaYachayHomePage> {
           const SizedBox(height: 16),
           // Botón de agregar clase
           FloatingActionButton(
-            onPressed: () {
-              // Aquí se podría agregar funcionalidad para añadir nuevas clases
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Función para agregar nueva clase'),
-                ),
-              );
+            onPressed: () async {
+              try {
+                // Crear una nueva clase de ejemplo
+                await ClassService.createClass(
+                  title: 'Nueva Clase',
+                  subtitle: 'Subtítulo',
+                  instructor: 'Nuevo Instructor',
+                  gradientStartColor: const Color(0xFF9C27B0),
+                  gradientEndColor: const Color(0xFF673AB7),
+                  icon: Icons.school,
+                );
+                
+                // Recargar las clases
+                _loadClasses();
+                
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Nueva clase agregada'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Error al agregar clase: $e'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
             },
             backgroundColor: const Color(0xFF4285F4),
             heroTag: "add",

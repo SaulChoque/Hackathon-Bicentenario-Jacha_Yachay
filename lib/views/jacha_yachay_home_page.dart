@@ -56,11 +56,17 @@ class _JachaYachayHomePageState extends State<JachaYachayHomePage> {
     }
   }
 
-  void _removeClass(int index) {
-    setState(() {
-      classes.removeAt(index);
-    });
+  // ...existing code...
+  void _removeClass(int index) async {
+    final classToRemove = classes[index];
+    // Elimina de la base de datos si tiene ID
+    if (classToRemove.id != null) {
+      await ClassService.deleteClass(classToRemove.id!);
+    }
+    // Recarga la lista desde la base de datos
+    _loadClasses();
   }
+  // ...existing code...
 
   void _showReceptionMenu() {
     showModalBottomSheet(

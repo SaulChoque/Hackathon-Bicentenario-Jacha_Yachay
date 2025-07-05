@@ -154,8 +154,8 @@ class _JachaYachayHomePageState extends State<JachaYachayHomePage> {
           // Avatar del usuario con label 'nombre'
           Row(
             children: [
-              const Text(
-                'nombre',
+              Text(
+                _users[1],
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,

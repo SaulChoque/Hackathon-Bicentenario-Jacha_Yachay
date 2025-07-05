@@ -235,10 +235,20 @@ class _ClassDetailPageState extends State<ClassDetailPage>
       itemBuilder: (context, index) {
         return Column(
           children: [
-            TaskCard(
-              task: tasks[index],
-              onSend: () => _sendTask(index),
-              onDelete: () => _removeTask(index),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TemaDetalleView(task: tasks[index]),
+                  ),
+                );
+              },
+              child: TaskCard(
+                task: tasks[index],
+                onSend: () => _sendTask(index),
+                onDelete: () => _removeTask(index),
+              ),
             ),
             // Agregar comentario de clase después de cada tarea
             Container(
@@ -295,6 +305,59 @@ class _ClassDetailPageState extends State<ClassDetailPage>
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// Vista nueva para el detalle del tema
+class TemaDetalleView extends StatelessWidget {
+  final TaskModel task;
+  const TemaDetalleView({super.key, required this.task});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1F1F1F),
+        title: Row(
+          children: [
+            Icon(Icons.description, color: Color(0xFF4285F4)),
+            const SizedBox(width: 8),
+            const Text('Trabajo Final'),
+          ],
+        ),
+      ),
+      backgroundColor: const Color(0xFF1F1F1F),
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                task.title,
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+              const SizedBox(height: 18),
+              const Text(
+                'Cada grupo deberá desarrollar tres aplicaciones móviles usando Flutter, una para cada nivel de dificultad (básico, intermedio y avanzado), todas dentro de un mismo contexto temático...',
+                style: TextStyle(fontSize: 15, color: Colors.white),
+              ),
+              const SizedBox(height: 16),
+              const Text('Por ejemplo: Área TEATRO:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+              const SizedBox(height: 8),
+              Text('Ø App Básico: App de Cartelera Cultural', style: TextStyle(fontSize: 15, color: Colors.white)),
+              Text('Ø App Intermedio: Organización de Evento Teatral (Grupal)', style: TextStyle(fontSize: 15, color: Colors.white)),
+              Text('Ø App Avanzado: Simulador de Reserva de Entradas', style: TextStyle(fontSize: 15, color: Colors.white)),
+              const SizedBox(height: 16),
+              const Text(
+                'Las aplicaciones deberán funcionar sin conexión a internet y no usar bases de datos ni servicios externos. Se enfocarán en el diseño de interfaces, la navegación entre pantallas y la lógica interna del manejo de datos en memoria.',
+                style: TextStyle(fontSize: 15, color: Colors.white),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
